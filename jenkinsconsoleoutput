@@ -1,0 +1,112 @@
+Started by user Jenkins Admin
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/k8s-deployment@2
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (checkout)
+[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/k8s-deployment@2/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/arshavardan/task_tamasha.git # timeout=10
+Fetching upstream changes from https://github.com/arshavardan/task_tamasha.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.25.1'
+ > git fetch --tags --force --progress -- https://github.com/arshavardan/task_tamasha.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision d205732b6400c9cf7cb5cbf9a945dd0464d9ab05 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f d205732b6400c9cf7cb5cbf9a945dd0464d9ab05 # timeout=10
+Commit message: "Create index.js"
+ > git rev-list --no-walk d205732b6400c9cf7cb5cbf9a945dd0464d9ab05 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Docker Image)
+[Pipeline] sh
++ sudo docker build -t nodeimage:v1 .
+#1 [internal] load .dockerignore
+#1 transferring context: 2B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 121B 0.0s done
+#2 DONE 0.1s
+
+#3 [auth] library/node:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#4 [internal] load metadata for docker.io/library/node:8.4.0
+#4 DONE 0.3s
+
+#5 [1/3] FROM docker.io/library/node:8.4.0@sha256:080488acfe59bae32331ce28373b752f3f848be8b76c2c2d8fdce28205336504
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 4.96kB 0.0s done
+#6 DONE 0.0s
+
+#7 [2/3] WORKDIR /app/
+#7 CACHED
+
+#8 [3/3] COPY . /app/
+#8 CACHED
+
+#9 exporting to image
+#9 exporting layers done
+#9 writing image sha256:732db3dfcc559deda741ca079e05cc349c8d81ac9edf5a2a779f6594c541e4e9 done
+#9 naming to docker.io/library/nodeimage:v1 done
+#9 DONE 0.0s
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (pushing Docker Image)
+[Pipeline] sh
++ sudo docker tag nodeimage:v1 arshavardan/nodeimage:v1
+[Pipeline] sh
++ sudo docker push arshavardan/nodeimage:v1
+The push refers to repository [docker.io/arshavardan/nodeimage]
+77905209c8fc: Preparing
+a27601944e37: Preparing
+c5b2ac536264: Preparing
+6c08a5b7d8f4: Preparing
+50867bb8f5d7: Preparing
+72d6c6f0ea06: Preparing
+8686c6b8d999: Preparing
+44b57351135e: Preparing
+00b029f9aa09: Preparing
+18f9b4e2e1bc: Preparing
+72d6c6f0ea06: Waiting
+8686c6b8d999: Waiting
+44b57351135e: Waiting
+00b029f9aa09: Waiting
+18f9b4e2e1bc: Waiting
+a27601944e37: Layer already exists
+c5b2ac536264: Layer already exists
+77905209c8fc: Layer already exists
+6c08a5b7d8f4: Layer already exists
+50867bb8f5d7: Layer already exists
+8686c6b8d999: Layer already exists
+72d6c6f0ea06: Layer already exists
+18f9b4e2e1bc: Layer already exists
+44b57351135e: Layer already exists
+00b029f9aa09: Layer already exists
+v1: digest: sha256:9d47ffca6f39241c3e87844f463f360621f6259861bc63c4ee8a0186f3f8b169 size: 2421
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (deploy to k8s)
+[Pipeline] kubernetesDeploy
+Starting Kubernetes deployment
+Loading configuration: /var/lib/jenkins/workspace/k8s-deployment@2/deploysvc.yaml
+Created Deployment: Deployment(apiVersion=apps/v1, kind=Deployment, metadata=ObjectMeta(annotations=null, clusterName=null, creationTimestamp=2023-02-22T07:00:30Z, deletionGracePeriodSeconds=null, deletionTimestamp=null, finalizers=[], generateName=null, generation=1, initializers=null, labels={app=nodeimage}, name=nodeimage, namespace=default, ownerReferences=[], resourceVersion=25039, selfLink=null, uid=d1746d1a-901b-40c9-946e-b497c7335306, additionalProperties={managedFields=[{manager=okhttp, operation=Update, apiVersion=apps/v1, time=2023-02-22T07:00:30Z, fieldsType=FieldsV1, fieldsV1={f:metadata={f:labels={.={}, f:app={}}}, f:spec={f:progressDeadlineSeconds={}, f:replicas={}, f:revisionHistoryLimit={}, f:selector={}, f:strategy={f:rollingUpdate={.={}, f:maxSurge={}, f:maxUnavailable={}}, f:type={}}, f:template={f:metadata={f:labels={.={}, f:app={}}}, f:spec={f:containers={k:{"name":"nodeimage"}={.={}, f:image={}, f:imagePullPolicy={}, f:name={}, f:ports={.={}, k:{"containerPort":8080,"protocol":"TCP"}={.={}, f:containerPort={}, f:protocol={}}}, f:resources={}, f:terminationMessagePath={}, f:terminationMessagePolicy={}}}, f:dnsPolicy={}, f:restartPolicy={}, f:schedulerName={}, f:securityContext={}, f:terminationGracePeriodSeconds={}}}}}}]}), spec=DeploymentSpec(minReadySeconds=null, paused=null, progressDeadlineSeconds=600, replicas=5, revisionHistoryLimit=10, selector=LabelSelector(matchExpressions=[], matchLabels={app=nodeimage}, additionalProperties={}), strategy=DeploymentStrategy(rollingUpdate=RollingUpdateDeployment(maxSurge=IntOrString(IntVal=null, Kind=null, StrVal=25%, additionalProperties={}), maxUnavailable=IntOrString(IntVal=null, Kind=null, StrVal=25%, additionalProperties={}), additionalProperties={}), type=RollingUpdate, additionalProperties={}), template=PodTemplateSpec(metadata=ObjectMeta(annotations=null, clusterName=null, creationTimestamp=null, deletionGracePeriodSeconds=null, deletionTimestamp=null, finalizers=[], generateName=null, generation=null, initializers=null, labels={app=nodeimage}, name=null, namespace=null, ownerReferences=[], resourceVersion=null, selfLink=null, uid=null, additionalProperties={}), spec=PodSpec(activeDeadlineSeconds=null, affinity=null, automountServiceAccountToken=null, containers=[Container(args=[], command=[], env=[], envFrom=[], image=arshavardan/nodeimage:v1, imagePullPolicy=IfNotPresent, lifecycle=null, livenessProbe=null, name=nodeimage, ports=[ContainerPort(containerPort=8080, hostIP=null, hostPort=null, name=null, protocol=TCP, additionalProperties={})], readinessProbe=null, resources=ResourceRequirements(limits=null, requests=null, additionalProperties={}), securityContext=null, stdin=null, stdinOnce=null, terminationMessagePath=/dev/termination-log, terminationMessagePolicy=File, tty=null, volumeDevices=[], volumeMounts=[], workingDir=null, additionalProperties={})], dnsConfig=null, dnsPolicy=ClusterFirst, hostAliases=[], hostIPC=null, hostNetwork=null, hostPID=null, hostname=null, imagePullSecrets=[], initContainers=[], nodeName=null, nodeSelector=null, priority=null, priorityClassName=null, restartPolicy=Always, schedulerName=default-scheduler, securityContext=PodSecurityContext(fsGroup=null, runAsNonRoot=null, runAsUser=null, seLinuxOptions=null, supplementalGroups=[], additionalProperties={}), serviceAccount=null, serviceAccountName=null, subdomain=null, terminationGracePeriodSeconds=30, tolerations=[], volumes=[], additionalProperties={}), additionalProperties={}), additionalProperties={}), status=DeploymentStatus(availableReplicas=null, collisionCount=null, conditions=[], observedGeneration=null, readyReplicas=null, replicas=null, unavailableReplicas=null, updatedReplicas=null, additionalProperties={}), additionalProperties={})
+Created Service: Service(apiVersion=v1, kind=Service, metadata=ObjectMeta(annotations=null, clusterName=null, creationTimestamp=2023-02-22T07:00:30Z, deletionGracePeriodSeconds=null, deletionTimestamp=null, finalizers=[], generateName=null, generation=null, initializers=null, labels=null, name=nodejs-app-service, namespace=default, ownerReferences=[], resourceVersion=25045, selfLink=null, uid=3ff6aa4d-2d11-421e-9b7a-d7af976c91dc, additionalProperties={managedFields=[{manager=okhttp, operation=Update, apiVersion=v1, time=2023-02-22T07:00:30Z, fieldsType=FieldsV1, fieldsV1={f:spec={f:externalTrafficPolicy={}, f:internalTrafficPolicy={}, f:ports={.={}, k:{"port":8080,"protocol":"TCP"}={.={}, f:name={}, f:port={}, f:protocol={}, f:targetPort={}}}, f:selector={}, f:sessionAffinity={}, f:type={}}}}]}), spec=ServiceSpec(clusterIP=10.100.120.106, externalIPs=[], externalName=null, externalTrafficPolicy=Cluster, healthCheckNodePort=null, loadBalancerIP=null, loadBalancerSourceRanges=[], ports=[ServicePort(name=http, nodePort=31948, port=8080, protocol=TCP, targetPort=IntOrString(IntVal=8080, Kind=null, StrVal=null, additionalProperties={}), additionalProperties={})], publishNotReadyAddresses=null, selector={app=nodeimage}, sessionAffinity=None, sessionAffinityConfig=null, type=NodePort, additionalProperties={clusterIPs=[10.100.120.106], ipFamilies=[IPv4], ipFamilyPolicy=SingleStack, internalTrafficPolicy=Cluster}), status=ServiceStatus(loadBalancer=LoadBalancerStatus(ingress=[], additionalProperties={}), additionalProperties={}), additionalProperties={})
+Finished Kubernetes deployment
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
