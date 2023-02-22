@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nodeimage
+  name: nodeimage
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: nodeimage
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nodeimage
+    spec:
+      containers:
+      - image: arshavardan/nodeimage:v1
+        name: nodeimage
+        ports:
+        - containerPort: 8080
+        resources: {}
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-app-service
+spec:
+  selector:
+    app: nodeimage
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+
